@@ -1,43 +1,74 @@
 package tests;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.*;
-import org.testng.Assert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.annotations.*;
+import com.aventstack.extentreports.*;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
+
+
+import java.util.concurrent.TimeUnit;
 
 public class LoginTest {
-	
-	WebDriver driver;
 
-    @BeforeClass
+    WebDriver driver;
+    ExtentReports extent;
+    ExtentTest test;
+
+    @BeforeTest
+    public void setupReport() {
+        ExtentSparkReporter spark = new ExtentSparkReporter("test-output/ExtentReport.html");
+        extent = new ExtentReports();
+        extent.attachReporter(spark);
+    }
+
+    @BeforeMethod
     public void setup() {
-        WebDriverManager.chromedriver().setup();
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless", "--no-sandbox", "--disable-dev-shm-usage");
-        driver = new ChromeDriver(options);
-        driver.get("https://the-internet.herokuapp.com/login");
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
     }
 
     @Test
-    public void validLogin() {
-        driver.findElement(By.id("username")).sendKeys("tomsmith");
-        driver.findElement(By.id("password")).sendKeys("SuperSecretPassword!");
-        driver.findElement(By.cssSelector("button[type='submit']")).click();
+    public void testLogin() {
+        test = extent.createTest("Login Test", "Login to demo website")
+                     .assignAuthor("Manikanta")
+                     .assignCategory("Regression");
 
-        WebElement message = driver.findElement(By.cssSelector(".flash.success"));
-        Assert.assertTrue(message.isDisplayed(), "Success message not displayed");
-        
-        System.out.println("Polling SCM is working!");
+        try {
+            test.info("Launching browser");
+            driver.get("https://example.com/login");
 
-    }
+            test.info("Entering username");
+            driver.findElement(By.id("username")).sendKeys("admin");
 
-    @AfterClass
-    public void tearDown() {
-        if (driver != null) {
-            driver.quit();
+            test.info("Entering password");
+            driver.findElement(By.id("password")).sendKeys("admin123");
+
+            test.info("Clicking login");
+            driver.findElement(By.id("loginButton")).click();
+
+            // Example check
+            String title = driver.getTitle();
+            if (title.contains("Dashboard")) {
+                test.pass("Login successful, Dashboard loaded");
+            } else {
+                test.fail("Login failed - Dashboard not found");
+            }
+
+        } catch (Exception e) {
+            test.fail("Test failed with exception: " + e.getMessage());
         }
     }
+
+    @AfterMethod
+    public void teardown() {
+        driver.quit();
+    }
+
+    @AfterTest
+    public void finishReport() {
+        extent.flush(); // Write results to HTML report
+    }
 }
-
-
