@@ -27,6 +27,9 @@ public class LoginTest {
 
         WebElement message = driver.findElement(By.cssSelector(".flash.success"));
         Assert.assertTrue(message.isDisplayed(), "Success message not displayed");
+        
+        System.out.println("Polling SCM is working!");
+
     }
 
     @AfterClass
