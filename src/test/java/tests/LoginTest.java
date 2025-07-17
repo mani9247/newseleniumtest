@@ -8,8 +8,7 @@ import org.testng.annotations.*;
 import com.aventstack.extentreports.*;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 
-
-import java.util.concurrent.TimeUnit;
+import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class LoginTest {
 
@@ -26,16 +25,11 @@ public class LoginTest {
 
     @BeforeMethod
     public void setup() {
-    	System.setProperty("webdriver.chrome.driver", "C:\\Drivers\\chromedriver.exe");
-
-    	ChromeOptions options = new ChromeOptions();
-    	options.addArguments("--headless");             // Run Chrome in headless mode
-    	options.addArguments("--no-sandbox");           // Bypass OS security model (required in CI sometimes)
-    	options.addArguments("--disable-dev-shm-usage");// Overcome limited resource problems in containers
-    	options.addArguments("--window-size=1920,1080");// Optional: define screen size
-
-    	driver = new ChromeDriver(options);
-    	driver.manage().window().maximize();
+    	WebDriverManager.chromedriver().setup();
+        ChromeOptions opts = new ChromeOptions();
+        opts.addArguments("--headless","--no-sandbox","--disable-dev-shm-usage");
+        driver = new ChromeDriver(opts);
+    
     }
 
     @Test
