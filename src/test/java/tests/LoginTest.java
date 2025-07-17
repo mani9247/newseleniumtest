@@ -3,6 +3,7 @@ package tests;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.*;
 import com.aventstack.extentreports.*;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
@@ -25,9 +26,16 @@ public class LoginTest {
 
     @BeforeMethod
     public void setup() {
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+    	System.setProperty("webdriver.chrome.driver", "C:\\Drivers\\chromedriver.exe");
+
+    	ChromeOptions options = new ChromeOptions();
+    	options.addArguments("--headless");             // Run Chrome in headless mode
+    	options.addArguments("--no-sandbox");           // Bypass OS security model (required in CI sometimes)
+    	options.addArguments("--disable-dev-shm-usage");// Overcome limited resource problems in containers
+    	options.addArguments("--window-size=1920,1080");// Optional: define screen size
+
+    	driver = new ChromeDriver(options);
+    	driver.manage().window().maximize();
     }
 
     @Test
